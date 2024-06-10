@@ -1,87 +1,69 @@
-# Case Study: Optimizing Project Performance and Monitoring
+# Case Study: Optimizing Project Performance
 
 ## Introduction
-In this case study, I will discuss how I applied optimization techniques learned throughout the course to two different projects. The first project is a large-scale application where I significantly reduced page load times using custom profiling and optimization techniques. The second project is a smaller side project where I plan to implement monitoring using New Relic.
+In this case study, I will discuss how I applied optimization techniques learned throughout the course to a large-scale application where I significantly reduced page load times using custom profiling and optimization techniques.
 
-## Project A: Large-Scale Application Optimization
-
-### Project Overview
+## Project Overview
 - **Project Description**: A comprehensive platform offering various services to users.
 - **Development Duration**: Active development for over 10 years.
 - **Performance Status**: Initially, the project suffered from slow page load times, especially on data-heavy pages.
 - **Monitoring**: Basic monitoring was in place, but it lacked detailed performance insights.
 - **My Role**: Senior Developer, working on this project for 3 years, primarily focusing on backend performance and scalability.
 
-### Identifying the Problem
+## Identifying the Problem
 - **Issue**: One of the main pages of the application took approximately 2 minutes to load.
 - **Metric**: Page load time.
 - **Initial Hypothesis**: Suspected inefficient database queries, excessive object instantiation, and numerous partial renders.
 
-### Optimization Process
-1. **Profiling with Custom Controller Concern**:
-   - Developed a controller concern method `profile` to export performance data into a qcachegrind report.
-   - Identified the slowest parts of the code, particularly around database queries, object creation, and partial rendering.
+## Optimization Process
 
-2. **Code Optimization**:
-   - Refactored database queries to reduce the number of queries and optimize joins.
-   - Implemented `includes` to preload associated models, reducing N+1 query issues.
-   - Minimized the use of heavy methods within loops such as `collect!` and `map!`.
-   - Reduced the number of partial renders to improve rendering performance.
+### Profiling with Custom Profiler Module
+To identify performance bottlenecks, I developed a custom profiling module. This module can be used anywhere in the codebase to start and stop profiling, and it generates detailed reports that can be viewed with `qcachegrind`.
 
-3. **Testing and Validation**:
-   - After each optimization, reran the tests to measure the impact.
-   - Ensured functionality remained intact while performance improved.
+### Code Optimization
+1. **Database Queries**:
+   - Found an SQL query that performed a search for a user 200 times and fixed it using `includes`.
+   - Optimized many database requests by changing joins and adding `includes`.
 
-### Results
-- **Performance Improvement**: Page load time reduced from 2 minutes to under 20 seconds.
-- **Ongoing Work**: Continued optimization of remaining heavy methods and further performance tuning expected to reduce load times further.
-- **Impact**: Improved user experience and reduced server load.
+2. **Rendering**:
+   - Discovered that `semanticform` took 10 seconds to render due to a loop.
+   - Investigated line by line by extracting Ruby code and measuring with `ruby-prof`.
+   - Replaced arrays with hashes to speed up lookups.
 
-### Feedback Loop
+3. **JavaScript Optimization**:
+   - Noticed that the page's responsiveness was affected by heavy JavaScript using Stimulus and JQuery.
+   - Initially planned to move everything to Stimulus but optimized the existing JavaScript instead.
+   - Removed JQuery, rewrote some loops, and optimized JavaScript, resulting in almost instant performance.
+
+4. **Method Optimization**:
+   - Identified a very long and complex Ruby method with many hidden subqueries.
+   - Optimized this method, reducing the execution time by 4 seconds.
+
+5. **ERB Optimization**:
+   - The biggest bottleneck was the ERB rendering time (8 seconds).
+   - Attempted various optimizations but found limited improvements.
+   - Optimized memory bloats by replacing `map` with `pluck`.
+
+### Testing and Validation
+- After each optimization, reran tests to measure the impact.
+- Ensured functionality remained intact while performance improved.
+
+## Results
+- **Performance Improvement**: Page load time reduced from 2 minutes to 10 seconds (on a 600-file bulk upload).
+- **Summary**:
+  - Introduced `ruby-prof` and a profiler module for future development.
+  - Optimized many database requests and related methods.
+  - Changed how large arrays are accessed in memory.
+  - Switched heavy JavaScript from JQuery to pure JavaScript and optimized it.
+
+## Feedback Loop
 - **Iteration**: Continuous profiling and optimization.
 - **Metrics**: Regular monitoring of page load times to ensure sustained performance.
 
-## Project B: Side Project Monitoring with New Relic
-
-### Project Overview
-- **Project Description**: A personal project providing a web service to users.
-- **Development Duration**: Ongoing for 2 years (latest version), with the project itself in active development for about 10 years.
-- **Performance Status**: Generally good performance, but lacked detailed monitoring.
-- **My Role**: Sole Developer, managing all aspects of the project.
-
-### Monitoring Implementation
-1. **Installing New Relic**:
-   - Chose New Relic for its comprehensive monitoring capabilities.
-   - Followed the installation guide to integrate New Relic with the application.
-
-   ```ruby
-   # Gemfile
-   gem 'newrelic_rpm'
-   ```
-
-   ```yaml
-   # config/newrelic.yml
-   common: &default_settings
-     license_key: 'YOUR_LICENSE_KEY'
-     app_name: 'Your Application Name'
-   ```
-
-2. **Configuring Monitoring**:
-   - Set up key transactions and custom metrics.
-   - Configured alerting for critical performance thresholds.
-
-3. **Benefits of Monitoring**:
-   - Gained insights into application performance.
-   - Identified and addressed performance bottlenecks early.
-   - Enhanced ability to troubleshoot and debug issues.
-
-### Conclusion
-- **Summary**: By applying performance profiling and monitoring techniques, I significantly improved the performance and reliability of both projects.
+## Conclusion
+- **Summary**: By applying performance profiling and monitoring techniques, I significantly improved the performance and reliability of the project.
 - **Ongoing Optimization**: Regular monitoring and iterative optimization ensure continued performance improvements.
 - **Impact**: Enhanced user experience, reduced operational costs, and improved development efficiency.
-
-### Screenshots and Code Snippets
-- Include relevant screenshots of profiling results, New Relic dashboards, and code snippets showcasing the optimizations.
 
 # Lecture Notes: Server Optimization
 
